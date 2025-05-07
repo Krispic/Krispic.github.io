@@ -7,50 +7,121 @@
   <style>
     body {
       margin: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
       background: #222;
-      height: 100vh;
       font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+      color: white;
     }
+
+    #score {
+      font-size: 20px;
+      margin: 10px 0;
+    }
+
     canvas {
       background: #111;
       border: 4px solid #4caf50;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(3, 60px);
+      grid-template-rows: repeat(2, 60px);
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .controls button {
+      font-size: 20px;
+      border: none;
+      border-radius: 10px;
+      background: #555;
+      color: white;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .controls button:hover {
+      background: #777;
+    }
+
+    .restart {
+      padding: 10px 20px;
+      background: #4caf50;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .restart:hover {
+      background: #45a045;
+    }
+
+    @media (max-width: 480px) {
+      canvas {
+        width: 90vw;
+        height: 90vw;
+      }
     }
   </style>
 </head>
 <body>
+  <h1>Змейка 🐍</h1>
+  <div id="score">Счёт: 0</div>
   <canvas id="game" width="400" height="400"></canvas>
+
+  <div class="controls">
+    <div></div>
+    <button onclick="setDirection(0, -1)">⬆</button>
+    <div></div>
+    <button onclick="setDirection(-1, 0)">⬅</button>
+    <button onclick="setDirection(0, 1)">⬇</button>
+    <button onclick="setDirection(1, 0)">➡</button>
+  </div>
+
+  <button class="restart" onclick="restartGame()">🔄 Начать заново</button>
 
   <script>
     const canvas = document.getElementById("game");
     const ctx = canvas.getContext("2d");
+    const scoreDisplay = document.getElementById("score");
 
     const gridSize = 20;
     const tileCount = canvas.width / gridSize;
+    let snake, direction, food, gameOver, score, interval;
 
-    let snake = [{ x: 10, y: 10 }];
-    let direction = { x: 0, y: 0 };
-    let food = { x: 5, y: 5 };
-    let gameOver = false;
+    function initGame() {
+      snake = [{ x: 10, y: 10 }];
+      direction = { x: 0, y: 0 };
+      food = { x: 5, y: 5 };
+      score = 0;
+      gameOver = false;
+      updateScore();
+      if (interval) clearInterval(interval);
+      interval = setInterval(gameLoop, 150);
+    }
 
     document.addEventListener("keydown", (e) => {
       switch (e.key) {
-        case "ArrowUp":
-          if (direction.y === 0) direction = { x: 0, y: -1 };
-          break;
-        case "ArrowDown":
-          if (direction.y === 0) direction = { x: 0, y: 1 };
-          break;
-        case "ArrowLeft":
-          if (direction.x === 0) direction = { x: -1, y: 0 };
-          break;
-        case "ArrowRight":
-          if (direction.x === 0) direction = { x: 1, y: 0 };
-          break;
+        case "ArrowUp": setDirection(0, -1); break;
+        case "ArrowDown": setDirection(0, 1); break;
+        case "ArrowLeft": setDirection(-1, 0); break;
+        case "ArrowRight": setDirection(1, 0); break;
       }
     });
+
+    function setDirection(x, y) {
+      if (gameOver) return;
+      if (direction.x === -x || direction.y === -y) return;
+      direction = { x, y };
+    }
 
     function gameLoop() {
       if (gameOver) return;
@@ -60,22 +131,17 @@
         y: snake[0].y + direction.y
       };
 
-      // Проверка на столкновение со стеной
-      if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
-        endGame();
-        return;
-      }
-
-      // Проверка на столкновение с самим собой
-      if (snake.some((s, i) => i !== 0 && s.x === head.x && s.y === head.y)) {
+      if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount ||
+          snake.some((s, i) => i !== 0 && s.x === head.x && s.y === head.y)) {
         endGame();
         return;
       }
 
       snake.unshift(head);
 
-      // Поедание еды
       if (head.x === food.x && head.y === food.y) {
+        score++;
+        updateScore();
         placeFood();
       } else {
         snake.pop();
@@ -88,11 +154,9 @@
       ctx.fillStyle = "#111";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Еда
       ctx.fillStyle = "red";
       ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
 
-      // Змейка
       ctx.fillStyle = "#4caf50";
       snake.forEach((segment) => {
         ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
@@ -108,13 +172,22 @@
 
     function endGame() {
       gameOver = true;
+      clearInterval(interval);
       ctx.fillStyle = "white";
       ctx.font = "24px sans-serif";
       ctx.fillText("Игра окончена!", 100, 200);
     }
 
-    placeFood();
-    setInterval(gameLoop, 150);
+    function restartGame() {
+      initGame();
+    }
+
+    function updateScore() {
+      scoreDisplay.innerText = `Счёт: ${score}`;
+    }
+
+    initGame();
   </script>
 </body>
 </html>
+
