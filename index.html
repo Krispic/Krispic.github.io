@@ -1,47 +1,136 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>Калькулятор</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: #f2f2f2;
-        }
-        .calculator {
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-        input, button {
-            width: 100%;
-            font-size: 1.2rem;
-            margin: 10px 0;
-            padding: 10px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Калькулятор</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .calculator {
+      background: white;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 320px;
+    }
+
+    .display {
+      background: #222;
+      color: #0f0;
+      font-size: 2rem;
+      padding: 10px;
+      border-radius: 8px;
+      text-align: right;
+      min-height: 50px;
+      word-break: break-all;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 20px;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #e0e0e0;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #ccc;
+    }
+
+    .operator {
+      background: #ffd54f;
+    }
+
+    .equal {
+      background: #4caf50;
+      color: white;
+      grid-column: span 2;
+    }
+
+    .clear {
+      background: #f44336;
+      color: white;
+      grid-column: span 2;
+    }
+  </style>
 </head>
 <body>
-    <div class="calculator">
-        <input id="expression" type="text" placeholder="Введите выражение (напр. 2+2)" />
-        <button onclick="calculate()">Рассчитать</button>
-        <div id="result"></div>
+  <div class="calculator">
+    <div class="display" id="display">0</div>
+    <div class="buttons">
+      <button onclick="append('7')">7</button>
+      <button onclick="append('8')">8</button>
+      <button onclick="append('9')">9</button>
+      <button class="operator" onclick="append('/')">÷</button>
+
+      <button onclick="append('4')">4</button>
+      <button onclick="append('5')">5</button>
+      <button onclick="append('6')">6</button>
+      <button class="operator" onclick="append('*')">×</button>
+
+      <button onclick="append('1')">1</button>
+      <button onclick="append('2')">2</button>
+      <button onclick="append('3')">3</button>
+      <button class="operator" onclick="append('-')">−</button>
+
+      <button onclick="append('0')">0</button>
+      <button onclick="append('.')">.</button>
+      <button class="equal" onclick="calculate()">=</button>
+      <button class="operator" onclick="append('+')">+</button>
+
+      <button class="clear" onclick="clearDisplay()">C</button>
+      <button class="clear" onclick="deleteLast()">⌫</button>
     </div>
-    <script>
-        function calculate() {
-            const expression = document.getElementById("expression").value;
-            try {
-                const result = eval(expression);
-                document.getElementById("result").innerText = "Результат: " + result;
-            } catch (e) {
-                document.getElementById("result").innerText = "Ошибка: неверное выражение";
-            }
-        }
-    </script>
+  </div>
+
+  <script>
+    let display = document.getElementById('display');
+    let current = '';
+
+    function append(char) {
+      if (current === '0') current = '';
+      current += char;
+      display.innerText = current;
+    }
+
+    function clearDisplay() {
+      current = '';
+      display.innerText = '0';
+    }
+
+    function deleteLast() {
+      current = current.slice(0, -1);
+      display.innerText = current || '0';
+    }
+
+    function calculate() {
+      try {
+        current = eval(current).toString();
+        display.innerText = current;
+      } catch {
+        display.innerText = 'Ошибка';
+        current = '';
+      }
+    }
+  </script>
 </body>
 </html>
+
