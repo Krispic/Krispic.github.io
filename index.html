@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Калькулятор</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #f2f2f2;
+        }
+        .calculator {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        input, button {
+            width: 100%;
+            font-size: 1.2rem;
+            margin: 10px 0;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <input id="expression" type="text" placeholder="Введите выражение (напр. 2+2)" />
+        <button onclick="calculate()">Рассчитать</button>
+        <div id="result"></div>
+    </div>
+    <script>
+        function calculate() {
+            const expression = document.getElementById("expression").value;
+            try {
+                const result = eval(expression);
+                document.getElementById("result").innerText = "Результат: " + result;
+            } catch (e) {
+                document.getElementById("result").innerText = "Ошибка: неверное выражение";
+            }
+        }
+    </script>
+</body>
+</html>
