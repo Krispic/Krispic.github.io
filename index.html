@@ -3,134 +3,118 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Калькулятор</title>
+  <title>Змейка</title>
   <style>
     body {
       margin: 0;
-      font-family: sans-serif;
-      background: #f0f0f0;
       display: flex;
-      align-items: center;
       justify-content: center;
-      height: 100vh;
-    }
-
-    .calculator {
-      background: white;
-      padding: 20px;
-      border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      width: 320px;
-    }
-
-    .display {
+      align-items: center;
       background: #222;
-      color: #0f0;
-      font-size: 2rem;
-      padding: 10px;
-      border-radius: 8px;
-      text-align: right;
-      min-height: 50px;
-      word-break: break-all;
+      height: 100vh;
+      font-family: sans-serif;
     }
-
-    .buttons {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      margin-top: 20px;
-    }
-
-    button {
-      padding: 20px;
-      font-size: 1.2rem;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      background: #e0e0e0;
-      transition: background 0.2s;
-    }
-
-    button:hover {
-      background: #ccc;
-    }
-
-    .operator {
-      background: #ffd54f;
-    }
-
-    .equal {
-      background: #4caf50;
-      color: white;
-      grid-column: span 2;
-    }
-
-    .clear {
-      background: #f44336;
-      color: white;
-      grid-column: span 2;
+    canvas {
+      background: #111;
+      border: 4px solid #4caf50;
     }
   </style>
 </head>
 <body>
-  <div class="calculator">
-    <div class="display" id="display">0</div>
-    <div class="buttons">
-      <button onclick="append('7')">7</button>
-      <button onclick="append('8')">8</button>
-      <button onclick="append('9')">9</button>
-      <button class="operator" onclick="append('/')">÷</button>
-
-      <button onclick="append('4')">4</button>
-      <button onclick="append('5')">5</button>
-      <button onclick="append('6')">6</button>
-      <button class="operator" onclick="append('*')">×</button>
-
-      <button onclick="append('1')">1</button>
-      <button onclick="append('2')">2</button>
-      <button onclick="append('3')">3</button>
-      <button class="operator" onclick="append('-')">−</button>
-
-      <button onclick="append('0')">0</button>
-      <button onclick="append('.')">.</button>
-      <button class="equal" onclick="calculate()">=</button>
-      <button class="operator" onclick="append('+')">+</button>
-
-      <button class="clear" onclick="clearDisplay()">C</button>
-      <button class="clear" onclick="deleteLast()">⌫</button>
-    </div>
-  </div>
+  <canvas id="game" width="400" height="400"></canvas>
 
   <script>
-    let display = document.getElementById('display');
-    let current = '';
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
 
-    function append(char) {
-      if (current === '0') current = '';
-      current += char;
-      display.innerText = current;
-    }
+    const gridSize = 20;
+    const tileCount = canvas.width / gridSize;
 
-    function clearDisplay() {
-      current = '';
-      display.innerText = '0';
-    }
+    let snake = [{ x: 10, y: 10 }];
+    let direction = { x: 0, y: 0 };
+    let food = { x: 5, y: 5 };
+    let gameOver = false;
 
-    function deleteLast() {
-      current = current.slice(0, -1);
-      display.innerText = current || '0';
-    }
-
-    function calculate() {
-      try {
-        current = eval(current).toString();
-        display.innerText = current;
-      } catch {
-        display.innerText = 'Ошибка';
-        current = '';
+    document.addEventListener("keydown", (e) => {
+      switch (e.key) {
+        case "ArrowUp":
+          if (direction.y === 0) direction = { x: 0, y: -1 };
+          break;
+        case "ArrowDown":
+          if (direction.y === 0) direction = { x: 0, y: 1 };
+          break;
+        case "ArrowLeft":
+          if (direction.x === 0) direction = { x: -1, y: 0 };
+          break;
+        case "ArrowRight":
+          if (direction.x === 0) direction = { x: 1, y: 0 };
+          break;
       }
+    });
+
+    function gameLoop() {
+      if (gameOver) return;
+
+      const head = {
+        x: snake[0].x + direction.x,
+        y: snake[0].y + direction.y
+      };
+
+      // Проверка на столкновение со стеной
+      if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
+        endGame();
+        return;
+      }
+
+      // Проверка на столкновение с самим собой
+      if (snake.some((s, i) => i !== 0 && s.x === head.x && s.y === head.y)) {
+        endGame();
+        return;
+      }
+
+      snake.unshift(head);
+
+      // Поедание еды
+      if (head.x === food.x && head.y === food.y) {
+        placeFood();
+      } else {
+        snake.pop();
+      }
+
+      drawGame();
     }
+
+    function drawGame() {
+      ctx.fillStyle = "#111";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Еда
+      ctx.fillStyle = "red";
+      ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
+
+      // Змейка
+      ctx.fillStyle = "#4caf50";
+      snake.forEach((segment) => {
+        ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
+      });
+    }
+
+    function placeFood() {
+      food = {
+        x: Math.floor(Math.random() * tileCount),
+        y: Math.floor(Math.random() * tileCount),
+      };
+    }
+
+    function endGame() {
+      gameOver = true;
+      ctx.fillStyle = "white";
+      ctx.font = "24px sans-serif";
+      ctx.fillText("Игра окончена!", 100, 200);
+    }
+
+    placeFood();
+    setInterval(gameLoop, 150);
   </script>
 </body>
 </html>
-
