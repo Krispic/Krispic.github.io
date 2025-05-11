@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ flower.name }} - Детали</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f9f3f3;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .flower-header {
+            display: flex;
+            margin-bottom: 30px;
+        }
+        .flower-image {
+            width: 400px;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        .flower-info {
+            margin-left: 30px;
+            flex: 1;
+        }
+        .flower-name {
+            color: #e75480;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .flower-price {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .flower-composition {
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+        .flower-description {
+            line-height: 1.6;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #e75480;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="flower-header">
+            <img src="../images/{{ flower.image }}" alt="{{ flower.name }}" class="flower-image">
+            <div class="flower-info">
+                <h1 class="flower-name">{{ flower.name }}</h1>
+                <div class="flower-price">{{ flower.price }}</div>
+                <div class="flower-composition">
+                    <strong>Состав букета:</strong> {{ flower.composition }}<br>
+                    <strong>Количество цветков:</strong> {{ flower.count }}
+                </div>
+                <div class="flower-description">
+                    <strong>Описание:</strong> {{ flower.description }}
+                </div>
+                <button style="background-color: #e75480; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 5px; margin-top: 20px; cursor: pointer;">
+                    Заказать
+                </button>
+            </div>
+        </div>
+        <a href="/" class="back-link">← Вернуться в каталог</a>
+    </div>
+</body>
+</html>
