@@ -46,7 +46,7 @@
 <body>
     <div class="container">
         <div class="flower-header">
-            <img id="flower-image" class="flower-image" alt="Букет">
+            <img id="flower-image" class="flower-image" alt="Букет" onerror="this.src='images/placeholder.jpg'">
             <div class="flower-info">
                 <h1 id="flower-name" class="flower-name"></h1>
                 <div id="flower-price" class="flower-price"></div>
@@ -61,11 +61,9 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
         
-        // Получаем данные из URL
         const params = new URLSearchParams(window.location.search);
         const flowerId = params.get('id');
         
-        // Загружаем данные о цветах
         fetch('script.js')
             .then(response => response.text())
             .then(text => {
@@ -83,7 +81,6 @@
                         document.getElementById('flower-description').innerHTML = 
                             `<strong>Описание:</strong> ${flower.description}`;
                         
-                        // Настройка кнопки заказа
                         document.getElementById('order-btn').addEventListener('click', () => {
                             tg.sendData(JSON.stringify({
                                 action: 'order',
