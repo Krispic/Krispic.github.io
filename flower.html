@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Детали букета</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        .container {
+            max-width: 100%;
+            padding: 15px;
+        }
+        .flower-header {
+            display: flex;
+            flex-direction: column;
+        }
+        .flower-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .flower-name {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .flower-price {
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        #order-btn {
+            background-color: #e75480;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 18px;
+            border-radius: 8px;
+            margin-top: 20px;
+            width: 100%;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="flower-header">
+            <img id="flower-image" class="flower-image" alt="Букет">
+            <div class="flower-info">
+                <h1 id="flower-name" class="flower-name"></h1>
+                <div id="flower-price" class="flower-price"></div>
+                <div id="flower-composition" class="flower-composition"></div>
+                <div id="flower-description" class="flower-description"></div>
+                <button id="order-btn">Заказать</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        
+        // Получаем данные из URL
+        const params = new URLSearchParams(window.location.search);
+        const flowerId = params.get('id');
+        
+        // Загружаем данные о цветах
+        fetch('script.js')
+            .then(response => response.text())
+            .then(text => {
+                const flowersMatch = text.match(/const flowers = (\[.*?\])/s);
+                if (flowersMatch) {
+                    const flowers = eval(flowersMatch[1]);
+                    const flower = flowers.find(f => f.id == flowerId);
+                    
+                    if (flower) {
+                        document.getElementById('flower-image').src = `images/${flower.image}`;
+                        document.getElementById('flower-name').textContent = flower.name;
+                        document.getElementById('flower-price').textContent = flower.price;
+                        document.getElementById('flower-composition').innerHTML = 
+                            `<strong>Состав:</strong> ${flower.composition}`;
+                        document.getElementById('flower-description').innerHTML = 
+                            `<strong>Описание:</strong> ${flower.description}`;
+                        
+                        // Настройка кнопки заказа
+                        document.getElementById('order-btn').addEventListener('click', () => {
+                            tg.sendData(JSON.stringify({
+                                action: 'order',
+                                flower_id: flower.id,
+                                flower_name: flower.name,
+                                price: flower.price
+                            }));
+                        });
+                    }
+                }
+            });
+    </script>
+</body>
+</html>
