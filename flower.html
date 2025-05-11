@@ -4,94 +4,72 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Детали букета</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        .container {
-            max-width: 100%;
+        body { 
+            font-family: Arial, sans-serif;
             padding: 15px;
+            max-width: 100%;
+            margin: 0 auto;
         }
-        .flower-header {
-            display: flex;
-            flex-direction: column;
-        }
-        .flower-image {
+        .flower-img {
             width: 100%;
             height: 300px;
             object-fit: cover;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-        .flower-name {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-        .flower-price {
-            font-size: 20px;
-            margin-bottom: 15px;
-        }
-        #order-btn {
-            background-color: #e75480;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            font-size: 18px;
             border-radius: 8px;
-            margin-top: 20px;
-            width: 100%;
-            cursor: pointer;
+        }
+        .price {
+            color: #e75480;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 10px 0;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="flower-header">
-            <img id="flower-image" class="flower-image" alt="Букет" onerror="this.src='images/placeholder.jpg'">
-            <div class="flower-info">
-                <h1 id="flower-name" class="flower-name"></h1>
-                <div id="flower-price" class="flower-price"></div>
-                <div id="flower-composition" class="flower-composition"></div>
-                <div id="flower-description" class="flower-description"></div>
-                <button id="order-btn">Заказать</button>
-            </div>
-        </div>
+    <div id="flower-container">
+        <img id="flower-image" class="flower-img" 
+             src="assets/images/placeholder.webp" 
+             alt="Букет цветов"
+             onerror="this.src='assets/images/placeholder.webp'">
+        
+        <h1 id="flower-name"></h1>
+        <div id="flower-price" class="price"></div>
+        <div id="flower-composition"></div>
+        <div id="flower-description"></div>
+        
+        <button style="background:#e75480; color:white; border:none; 
+                      padding:12px; width:100%; margin-top:20px; border-radius:8px;">
+            Заказать
+        </button>
     </div>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
+        // Простейшая загрузка данных без зависимостей
+        const flowerId = new URLSearchParams(window.location.search).get('id');
+        const flowers = [
+            {
+                id: 1,
+                name: "Розы",
+                image: "assets/images/roses.webp",
+                price: "10 000 руб.",
+                composition: "51 роза",
+                description: "Элегантный букет из свежих роз"
+            },
+            // Остальные цветы...
+        ];
         
-        const params = new URLSearchParams(window.location.search);
-        const flowerId = params.get('id');
+        const flower = flowers.find(f => f.id == flowerId) || flowers[0];
         
-        fetch('script.js')
-            .then(response => response.text())
-            .then(text => {
-                const flowersMatch = text.match(/const flowers = (\[.*?\])/s);
-                if (flowersMatch) {
-                    const flowers = eval(flowersMatch[1]);
-                    const flower = flowers.find(f => f.id == flowerId);
-                    
-                    if (flower) {
-                        document.getElementById('flower-image').src = `images/${flower.image}`;
-                        document.getElementById('flower-name').textContent = flower.name;
-                        document.getElementById('flower-price').textContent = flower.price;
-                        document.getElementById('flower-composition').innerHTML = 
-                            `<strong>Состав:</strong> ${flower.composition}`;
-                        document.getElementById('flower-description').innerHTML = 
-                            `<strong>Описание:</strong> ${flower.description}`;
-                        
-                        document.getElementById('order-btn').addEventListener('click', () => {
-                            tg.sendData(JSON.stringify({
-                                action: 'order',
-                                flower_id: flower.id,
-                                flower_name: flower.name,
-                                price: flower.price
-                            }));
-                        });
-                    }
-                }
-            });
+        document.getElementById('flower-name').textContent = flower.name;
+        document.getElementById('flower-price').textContent = flower.price;
+        document.getElementById('flower-composition').textContent = `Состав: ${flower.composition}`;
+        document.getElementById('flower-description').textContent = flower.description;
+        
+        const img = document.getElementById('flower-image');
+        img.src = flower.image;
+        img.onerror = function() {
+            this.src = 'assets/images/placeholder.webp';
+        };
     </script>
 </body>
 </html>
