@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
         flowerCard.className = 'flower-card';
         flowerCard.innerHTML = `
             <a href="flower.html?id=${flower.id}" style="text-decoration: none; color: inherit;">
-                <img src="images/${flower.image}" alt="${flower.name}" class="flower-image">
+                <img src="images/${flower.image}" alt="${flower.name}" class="flower-image" onerror="this.src='images/placeholder.jpg'">
                 <div class="flower-info">
                     <div class="flower-name">${flower.name}</div>
                     <div class="flower-price">${flower.price}</div>
@@ -90,7 +90,6 @@ document.addEventListener('DOMContentLoaded', function() {
         catalog.appendChild(flowerCard);
     });
     
-    // Адаптация под Telegram
     if (tg.platform !== 'unknown') {
         document.body.classList.add('telegram-app');
         tg.BackButton.show();
