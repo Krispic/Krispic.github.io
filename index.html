@@ -1,192 +1,101 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Змейка</title>
-  <style>
-    body {
-      margin: 0;
-      background: #222;
-      font-family: sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 10px;
-      color: white;
-    }
-
-    #score {
-      font-size: 20px;
-      margin: 10px 0;
-    }
-
-    canvas {
-      background: #111;
-      border: 4px solid #4caf50;
-      display: block;
-      margin-bottom: 10px;
-    }
-
-    .controls {
-      display: grid;
-      grid-template-columns: repeat(3, 60px);
-      grid-template-rows: repeat(2, 60px);
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .controls button {
-      font-size: 20px;
-      border: none;
-      border-radius: 10px;
-      background: #555;
-      color: white;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .controls button:hover {
-      background: #777;
-    }
-
-    .restart {
-      padding: 10px 20px;
-      background: #4caf50;
-      border: none;
-      border-radius: 8px;
-      color: white;
-      font-size: 18px;
-      cursor: pointer;
-    }
-
-    .restart:hover {
-      background: #45a045;
-    }
-
-    @media (max-width: 480px) {
-      canvas {
-        width: 90vw;
-        height: 90vw;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Каталог цветов</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f9f3f3;
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #e75480;
+        }
+        .catalog {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .flower-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+        }
+        .flower-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            border: 2px solid #ffb6c1;
+        }
+        .flower-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+        .flower-info {
+            padding: 15px;
+            text-align: center;
+        }
+        .flower-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .flower-price {
+            color: #e75480;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(233, 84, 128, 0.9);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            width: 80%;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .flower-card:hover .tooltip {
+            opacity: 1;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #888;
+        }
+    </style>
 </head>
 <body>
-  <h1>Змейка 🐍</h1>
-  <div id="score">Счёт: 0</div>
-  <canvas id="game" width="400" height="400"></canvas>
+    <div class="header">
+        <h1>Каталог цветов</h1>
+    </div>
+    
+    <div class="catalog" id="catalog">
+        <!-- Цветы будут загружены через JavaScript -->
+    </div>
+    
+    <div class="footer">
+        <p>© 2023 Магазин цветов. Все права защищены.</p>
+    </div>
 
-  <div class="controls">
-    <div></div>
-    <button onclick="setDirection(0, -1)">⬆</button>
-    <div></div>
-    <button onclick="setDirection(-1, 0)">⬅</button>
-    <button onclick="setDirection(0, 1)">⬇</button>
-    <button onclick="setDirection(1, 0)">➡</button>
-  </div>
-
-  <button class="restart" onclick="restartGame()">🔄 Начать заново</button>
-
-  <script>
-    const canvas = document.getElementById("game");
-    const ctx = canvas.getContext("2d");
-    const scoreDisplay = document.getElementById("score");
-
-    const gridSize = 20;
-    const tileCount = canvas.width / gridSize;
-    let snake, direction, food, gameOver, score, interval;
-
-    function initGame() {
-      snake = [{ x: 10, y: 10 }];
-      direction = { x: 0, y: 0 };
-      food = { x: 5, y: 5 };
-      score = 0;
-      gameOver = false;
-      updateScore();
-      if (interval) clearInterval(interval);
-      interval = setInterval(gameLoop, 150);
-    }
-
-    document.addEventListener("keydown", (e) => {
-      switch (e.key) {
-        case "ArrowUp": setDirection(0, -1); break;
-        case "ArrowDown": setDirection(0, 1); break;
-        case "ArrowLeft": setDirection(-1, 0); break;
-        case "ArrowRight": setDirection(1, 0); break;
-      }
-    });
-
-    function setDirection(x, y) {
-      if (gameOver) return;
-      if (direction.x === -x || direction.y === -y) return;
-      direction = { x, y };
-    }
-
-    function gameLoop() {
-      if (gameOver) return;
-
-      const head = {
-        x: snake[0].x + direction.x,
-        y: snake[0].y + direction.y
-      };
-
-      if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount ||
-          snake.some((s, i) => i !== 0 && s.x === head.x && s.y === head.y)) {
-        endGame();
-        return;
-      }
-
-      snake.unshift(head);
-
-      if (head.x === food.x && head.y === food.y) {
-        score++;
-        updateScore();
-        placeFood();
-      } else {
-        snake.pop();
-      }
-
-      drawGame();
-    }
-
-    function drawGame() {
-      ctx.fillStyle = "#111";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      ctx.fillStyle = "red";
-      ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
-
-      ctx.fillStyle = "#4caf50";
-      snake.forEach((segment) => {
-        ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
-      });
-    }
-
-    function placeFood() {
-      food = {
-        x: Math.floor(Math.random() * tileCount),
-        y: Math.floor(Math.random() * tileCount),
-      };
-    }
-
-    function endGame() {
-      gameOver = true;
-      clearInterval(interval);
-      ctx.fillStyle = "white";
-      ctx.font = "24px sans-serif";
-      ctx.fillText("Игра окончена!", 100, 200);
-    }
-
-    function restartGame() {
-      initGame();
-    }
-
-    function updateScore() {
-      scoreDisplay.innerText = `Счёт: ${score}`;
-    }
-
-    initGame();
-  </script>
+    <script src="script.js"></script>
 </body>
 </html>
